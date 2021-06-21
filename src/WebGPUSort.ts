@@ -1,4 +1,4 @@
-import { MAX_THREAD_NUM, MAX_GROUP_NUM, shader1, shader2 } from './WGSLComputeShaderCode';
+import { MAX_THREAD_NUM, shader1, shader2 } from './ComputeShaderCode.wgsl';
 
 export class WebGPUSort {
 
@@ -207,6 +207,12 @@ export class WebGPUSort {
 
         passEncoder.dispatch(threadgroupsPerGrid, 1, 1);
 
+        passEncoder.endPass();
+
+        this.device.queue.submit( [ commandEncoder.finish() ] );
+
+        let uniform = new Uint32Array([0, 0, 0, 0]);
+
         let uniformBuffer = this.device.createBuffer({
 
             size: 16,
@@ -239,22 +245,30 @@ export class WebGPUSort {
         });
 
         if (threadgroupsPerGrid > 1) {
-            
-            passEncoder.setPipeline(pipeline2);
-
-            passEncoder.setBindGroup(0, bindGroup2);
 
             for (let k = threadgroupsPerGrid; k <= length; k = k << 1) {
 
                 for (let j = k >> 1; j > 0; j = j >> 1) {
-            
-                    let uniform = new Uint32Array([k, j, 0, 0]);
 
-                    console.log(threadgroupsPerGrid, k, j)
+                    let commandEncoder2 = this.device.createCommandEncoder();
+
+                    let passEncoder2 = commandEncoder2.beginComputePass();
+            
+                    passEncoder2.setPipeline(pipeline2);
+
+                    passEncoder2.setBindGroup(0, bindGroup2);
+
+                    uniform[ 0 ] = k;
+
+                    uniform[ 1 ] = j;
                     
                     this.device.queue.writeBuffer(uniformBuffer, 0, uniform);
 
-                    passEncoder.dispatch(threadgroupsPerGrid, 1, 1);
+                    passEncoder2.dispatch(threadgroupsPerGrid, 1, 1);
+
+                    passEncoder2.endPass();
+
+                    this.device.queue.submit( [ commandEncoder2.finish() ] );
 
                 }
 
@@ -262,7 +276,7 @@ export class WebGPUSort {
 
         }
 
-        passEncoder.endPass();
+        let lastCommandEncoder = this.device.createCommandEncoder();
 
         let resultBufferToRead = this.device.createBuffer({
 
@@ -272,9 +286,9 @@ export class WebGPUSort {
 
         });
 
-        commandEncoder.copyBufferToBuffer(inputBuffer, 0, resultBufferToRead, 0, byteLength);
+        lastCommandEncoder.copyBufferToBuffer(inputBuffer, 0, resultBufferToRead, 0, byteLength);
 
-        this.device.queue.submit( [ commandEncoder.finish() ] );
+        this.device.queue.submit( [ lastCommandEncoder.finish() ] );
 
         await resultBufferToRead.mapAsync(GPUMapMode.READ);
 

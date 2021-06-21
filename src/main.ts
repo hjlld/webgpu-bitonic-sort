@@ -7,7 +7,7 @@ let main = async () => {
 
     for ( let i = 0; i < array.length; ++ i ) {
 
-        array[ i ] = array.length - i;
+        array[ i ] = Math.random();
 
     }
 

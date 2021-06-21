@@ -1,5 +1,4 @@
 export const MAX_THREAD_NUM = 1024;
-export const MAX_GROUP_NUM = 2048;
 
 export const shader1 = `
 struct structFixedData {
@@ -100,7 +99,9 @@ var<uniform> tonic: struct_Uniform;
 var<storage, write> input: ssbo;
 
 [[stage(compute), workgroup_size(${MAX_THREAD_NUM},1,1)]]
-fn main( [[builtin(local_invocation_id)]] global_id: vec3<u32> ) {
+fn main( 
+    [[builtin(global_invocation_id)]] global_id: vec3<u32>
+) {
 
     let globalIdX: u32 = global_id.x;
 
