@@ -61,10 +61,6 @@ export class WebGPUSort {
 
         }
 
-        let commandEncoder = this.device.createCommandEncoder();
-
-        let passEncoder = commandEncoder.beginComputePass();
-
         let length = array.length;
 
         let byteLength = array.byteLength;
@@ -130,6 +126,47 @@ export class WebGPUSort {
 
         });
 
+        let bindGroup1 = this.device.createBindGroup({
+
+            layout: bindGroupLayout1,
+
+            entries: [
+
+                {
+                    binding: 0,
+                    resource: {
+                        buffer: inputBuffer
+                    }
+                }
+
+            ]
+
+        });
+
+        let commandEncoder = this.device.createCommandEncoder();
+
+        let passEncoder = commandEncoder.beginComputePass();
+
+        passEncoder.setPipeline(pipeline1);
+
+        passEncoder.setBindGroup(0, bindGroup1);
+
+        passEncoder.dispatch(threadgroupsPerGrid, 1, 1);
+
+        passEncoder.endPass();
+
+        this.device.queue.submit( [ commandEncoder.finish() ] );
+
+        let uniform = new Uint32Array([0, 0, 0, 0]);
+
+        let uniformBuffer = this.device.createBuffer({
+
+            size: 16,
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+
+        });
+
+        
         let shaderModule2 = this.device.createShaderModule({
 
             label: 'shader2',
@@ -182,43 +219,6 @@ export class WebGPUSort {
 
         });
 
-        //let [ pipeline1, pipeline2 ] = await Promise.all( [ createPipeline1, createPipeline2 ] );
-
-        let bindGroup1 = this.device.createBindGroup({
-
-            layout: bindGroupLayout1,
-
-            entries: [
-
-                {
-                    binding: 0,
-                    resource: {
-                        buffer: inputBuffer
-                    }
-                }
-
-            ]
-
-        });
-
-        passEncoder.setPipeline(pipeline1);
-
-        passEncoder.setBindGroup(0, bindGroup1);
-
-        passEncoder.dispatch(threadgroupsPerGrid, 1, 1);
-
-        passEncoder.endPass();
-
-        this.device.queue.submit( [ commandEncoder.finish() ] );
-
-        let uniform = new Uint32Array([0, 0, 0, 0]);
-
-        let uniformBuffer = this.device.createBuffer({
-
-            size: 16,
-            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
-
-        });
 
         let bindGroup2 = this.device.createBindGroup({
 

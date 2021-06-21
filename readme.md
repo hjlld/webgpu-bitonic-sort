@@ -6,5 +6,7 @@ This repo is completely transfered from https://github.com/9ballsyndrome/WebGL_C
 
 ## Development
 
+`npm i`
+
 `npm run dev`
 

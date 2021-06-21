@@ -11,8 +11,6 @@ let main = async () => {
 
     }
 
-    console.log( array )
-
     let sort = new WebGPUSort();
 
     await sort.Init();
