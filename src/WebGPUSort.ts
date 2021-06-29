@@ -111,7 +111,7 @@ export class WebGPUSort {
 
         });
         
-        let pipeline1 = await this.device.createComputePipelineAsync({
+        let pipeline1 = this.device.createComputePipeline({
 
             label: 'pipeline1',
 
@@ -204,7 +204,7 @@ export class WebGPUSort {
 
         });
         
-        let pipeline2 = await this.device.createComputePipelineAsync({
+        let pipeline2 = this.device.createComputePipeline({
 
             label: 'pipeline2',
 
@@ -290,7 +290,11 @@ export class WebGPUSort {
 
         this.device.queue.submit( [ lastCommandEncoder.finish() ] );
 
+        console.time( 'GPU sort - result buffer map async')
+
         await resultBufferToRead.mapAsync(GPUMapMode.READ);
+
+        console.timeEnd( 'GPU sort - result buffer map async')
 
         let resultMappedRange: ArrayBuffer = resultBufferToRead.getMappedRange();
 
