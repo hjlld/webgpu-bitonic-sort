@@ -111,7 +111,7 @@ export class WebGPUSort {
 
         });
         
-        let pipeline1 = this.device.createComputePipeline({
+        let pipeline1 = await this.device.createComputePipelineAsync({
 
             label: 'pipeline1',
 
@@ -204,7 +204,7 @@ export class WebGPUSort {
 
         });
         
-        let pipeline2 = this.device.createComputePipeline({
+        let pipeline2 = await this.device.createComputePipelineAsync({
 
             label: 'pipeline2',
 
