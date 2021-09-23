@@ -1,10 +1,12 @@
-import { MAX_THREAD_NUM, shader1, shader2 } from './ComputeShaderCode.wgsl';
+import { shader1, shader2 } from './ComputeShaderCode.wgsl';
 
 export class WebGPUSort {
 
     public adapter?: GPUAdapter | null;
 
     public device?: GPUDevice;
+
+    public maxThreadNum: number = 256;
 
     constructor() {
 
@@ -31,6 +33,8 @@ export class WebGPUSort {
         }
 
         this.device = await this.adapter.requestDevice();
+
+        this.maxThreadNum = this.device.limits.maxComputeWorkgroupSizeX;
 
     }
 
@@ -65,7 +69,9 @@ export class WebGPUSort {
 
         let byteLength = array.byteLength;
 
-        let threadgroupsPerGrid = Math.max(1, length / MAX_THREAD_NUM);
+        let threadgroupsPerGrid = Math.max(1, length / this.maxThreadNum);
+
+        let offset = Math.log2( length ) - ( Math.log2( this.maxThreadNum * 2 + 1) );
 
         let inputBuffer = this.device!.createBuffer({
 
@@ -85,7 +91,7 @@ export class WebGPUSort {
         let shaderModule1 = this.device.createShaderModule({
 
             label: 'shader1',
-            code: shader1
+            code: shader1( this.maxThreadNum )
 
         });
 
@@ -170,7 +176,7 @@ export class WebGPUSort {
         let shaderModule2 = this.device.createShaderModule({
 
             label: 'shader2',
-            code: shader2
+            code: shader2( this.maxThreadNum )
 
         });
         
@@ -246,7 +252,7 @@ export class WebGPUSort {
 
         if (threadgroupsPerGrid > 1) {
 
-            for (let k = threadgroupsPerGrid; k <= length; k = k << 1) {
+            for (let k = threadgroupsPerGrid >> offset; k <= length; k = k << 1) {
 
                 for (let j = k >> 1; j > 0; j = j >> 1) {
 

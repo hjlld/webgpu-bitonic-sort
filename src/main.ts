@@ -3,7 +3,9 @@ import { WebGPUSort } from './WebGPUSort';
 
 let main = async () => {
 
-    let array = new Float32Array( Math.pow( 2, 21 ) );
+    let exponent = 23;
+
+    let array = new Float32Array( Math.pow( 2, exponent ) );
 
     for ( let i = 0; i < array.length; ++ i ) {
 
@@ -25,13 +27,18 @@ let main = async () => {
 
     console.time( 'CPU sort' );
 
+    if ( sort.Validate( gpuSortResult ) ) {
+
+        console.log( 'GPU sort validation passed!' )
+
+    };
+
     let cpuSortResult = array.slice().sort( ( a, b ) => a - b );
 
     console.timeEnd( 'CPU sort' );
 
     console.log( cpuSortResult );
 
-    sort.Validate( gpuSortResult );
   
 }
 

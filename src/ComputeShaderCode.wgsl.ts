@@ -1,7 +1,5 @@
-export const MAX_THREAD_NUM = 1024;
-
-export const shader1 = `
-struct structFixedData {
+export const shader1 = ( MAX_THREAD_NUM: number ) => 
+`struct structFixedData {
     data: array<f32, ${MAX_THREAD_NUM}>;
 };
 
@@ -78,11 +76,10 @@ fn main(
 
     input.data[ globalIdX ] = sharedData.data[ localIdX ];
 
-}
-`;
+}`;
 
-export const shader2 = `
-[[block]]
+export const shader2 = ( MAX_THREAD_NUM: number ) => 
+`[[block]]
 struct ssbo {
     data: array<f32>;
 };
@@ -139,5 +136,4 @@ fn main(
 
     }
 
-}
-`;
+}`;
